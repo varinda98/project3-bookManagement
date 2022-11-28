@@ -1,0 +1,22 @@
+{
+  "name": "project3",
+  "version": "1.0.0",
+  "description": "\"this project team working\"",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Harsh-Kumar-Sharma/Project3.git"
+  },
+  "author": "\"Harsh Kumar Sharma\"",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Harsh-Kumar-Sharma/Project3/issues"
+  },
+  "homepage": "https://github.com/Harsh-Kumar-Sharma/Project3#readme",
+  "dependencies": {
+    "express": "^4.18.2"
+  }
+}
