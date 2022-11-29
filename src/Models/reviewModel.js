@@ -4,19 +4,17 @@ const reviewschema = new mongoose.Schema(
   {
     bookId: { 
         type:ObjectId,
-        required: true,
-         ref: "" 
+        required: true 
         },
 
     reviewedBy: {
       type: String,
       required: true,
-      default: "Guest",
-      value: String,
+      default: "Guest"
     },
 
     reviewedAt: { 
-        type:String,
+        type:Date,
         required:true 
     },
     

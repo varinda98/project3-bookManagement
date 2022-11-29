@@ -3,6 +3,10 @@ const isValid = function (value) {
     if (typeof value === "undefined" || value === "null") return false
     return true;
 }
+const isValidnum= (value)=>{
+    if(typeof value !== 'string') return false
+    return true
+}
 const regexName = function (name) {
     return (/^[a-zA-Z ]{2,30}$/.test(name))
 }
@@ -17,6 +21,7 @@ const regexPassword = function (password) {
         .test(password)
 }
 const regexPincode = function (pincode) {
+    if(typeof pincode !=='string') return false
     return (/^(\d{4}|\d{6})$/
         .test(pincode))
 }
@@ -32,4 +37,4 @@ function checkObject(value) {
     }
 }
 
-module.exports={isValid,regexName,regexPassword,regexPhone,regexPincode,regexemail,checkObject};
+module.exports={isValid,regexName,regexPassword,regexPhone,regexPincode,regexemail,checkObject,isValidnum};

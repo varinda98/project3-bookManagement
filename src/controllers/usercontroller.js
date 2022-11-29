@@ -23,7 +23,7 @@ try {
             return res.status(400).send({ status: false, msg: "please provide name in character only" })
         }
         //phone
-        if (!validator.isValid(phone)) {
+        if (!validator.isValidnum(phone)) {
             return res.status(400).send({ status: false, msg: "please provide phone in proper format" })
         }
         if (!validator.regexPhone(phone)) {
