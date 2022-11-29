@@ -10,6 +10,7 @@ router.post("/register",User.userRegister)
 
 // create the book
  router.post("/books",Book.createBook)
+ router.get("/books",Book.getAllBooks)
 
 //login user 
 router.post("/login", User.userlogin)

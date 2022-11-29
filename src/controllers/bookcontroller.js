@@ -1,27 +1,49 @@
-// const userModel = require("../Models/userModel")
-// const ObjectId = mongoose.schema.Types.ObjectId
-
-
-const bookModel = require('../Models/bookModel')
+const userModel = require("../Models/userModel")
+const bookModel= require ("../Models/bookModel")
+const { isValidObjectId } = require('mongoose');
 
 const createBook = async function (req, res) {
     try {
-        let bodydata = req.body
+        let { title, excerpt, userId, ISBN, category, subcategory} = req.body
         if(!req.body){
             return res.status(400).send({status:false,message:"body is blank"})
         }
-        let { title, excerpt, userId, ISBN, category, subcategory, releasedAt } = req.body
+        let checktitle = await bookModel.findOne({title:title})
+        // this is tittle validation
         if (!title) {
             return res.status(400).send({ status: false, message:"tittle is require" })
         }
+        if(checktitle){
+          return res.status(400).send({ status: false, message:"Please provide unqiue tittle" })
+        }
+        
+
+        // this is user validation
         if (!userId) {
             return res.status(400).send({ status: false, message:"userId is require" })
         }
+        if(!isValidObjectId(userId)){
+          return res.status(400).send({ status: false, message:"userId is not vaild" })
+        }
+          let data1 = await userModel.findById({_id:userId})
+          
+          if(!data1){
+            return res.status(404).send({ status: false, message:"userId is not register" })
+          }
+  
+
         if (!excerpt) {
             return res.status(400).send({ status: false, message:"excerpt is require"})
         }
+
+        // ISBN
+        let testbook = await  (await bookModel.find().select({ISBN:1,_id:0})).map(x=>x.ISBN);
         if (!ISBN) {
             return res.status(400).send({ status: false, message:"ISBN is require"})
+        }
+        if(testbook.includes(ISBN))
+        {
+          return res.status(400).send({ status: false, message:"Please provide unique ISBN" })
         }
         if (!category) {
             return res.status(400).send({ status: false, message:"category is require"})
@@ -29,24 +51,10 @@ const createBook = async function (req, res) {
         if (!subcategory) {
             return res.status(400).send({ status: false, message:"subcategory is require"})
         }
-        // if (!releasedAt) {
-        //     return res.status(400).send({ status: false, message:"releasedAt is require"})
-        // }
-        if(releasedAt){
-            releasedAt=new Date(YYYY-MM-DD);
-        }
-        
-        let titleExist = await bookModel.findOne({title:title})
-
-        if(titleExist) { return res.status(400).send({status:false, message:" title should be unique"})}
-
-        let checkUnique = await bookModel.findById(ISBN)
-        if (checkUnique) {
-            return res.status(404).send({ status: false, msg: 'please enter unique ISBN number' })
-        }
-
-            let bookData = await bookModel.create(bodydata)
-            res.status(201).send({ status: true, data: bookData })
+        req.body.releasedAt= new Date();
+         let bodydata= req.body
+       let data = await bookModel.create(bodydata);
+       return res.status(201).send({status:true,data:data});
         
     }
     catch (error) {
@@ -76,7 +84,7 @@ const getAllBooks = async function (req, res) {
           if (!userId){
             return res.status(400).send({ status: false, message: "UserId should  be present" })
             }
-          if (!mongoose.Types.ObjectId.isValid(userId)) {
+          if (!isValidObjectId(userId)) {
             return res.status(400).send({ status: false, message: "UserId is not valid" })
           }
         
