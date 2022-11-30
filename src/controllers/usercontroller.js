@@ -56,9 +56,9 @@ try {
             if (!validator.checkObject(address)) {
                 return res.status(400).send({ status: false, msg: "please provide address" })
             }
-            if (Object.keys(address).length === 0) {
-                return res.status(400).send({ status: false, msg: " please provide somthing in address" })
-            }
+            // if (Object.keys(address).length === 0) {
+            //     return res.status(400).send({ status: false, msg: " please provide somthing in address" })
+            // }
             if (!validator.isValid(address.street || address.city || address.pincode)) {
                 return res.status(400).send({ status: false, msg: "please provide address in proper format" })
             }
@@ -98,14 +98,14 @@ const userlogin= async (req,res)=>{
   if(!email){
     return res.status(400).send({status:false,message:"Please enter the email"})
    }
-    if(!(/[a-z0-9]+@[a-z]+\.[a-z]{2,3}/).test(email)){
-        return res.status(400).send({status:false,msg:"email not valid"})
+    if(!validator.regexemail(email)){
+        return res.status(400).send({status:false,message:"email not valid"})
 }
 
-if(!(/^(?=.*[A-Z0-9])(?=.*[!@#$%^&*])[a-zA-Z0-9!@#$%^&*]{7,15}$/).test(password)){
-    return res.status(400).send({status:false,msg:`Check either you have entered wrong ${i} or not entered any ${i} at all`})
+if(!validator.regexPassword(password)){
+    return res.status(400).send({status:false,message:"Please enter vaild Password"})
 } 
-  let data= await userModel.findOne({email:email,password:password});
+  let data= await userModel.findOne({email:email,password:password,isDeleted:false});
 
   if(!data){
     return res.status(404).send({status:false,message:"email and password not register"})
@@ -114,12 +114,12 @@ if(!(/^(?=.*[A-Z0-9])(?=.*[!@#$%^&*])[a-zA-Z0-9!@#$%^&*]{7,15}$/).test(password)
   let token = jwt.sign(
     {
       userId: data._id.toString(),
-      organisation: "Bookstore",
+      organisation: "Bookstore"
     },
-    "Stack", {
-        expiresIn: "10h"
- },
-    "Alone-But-Happy"
+    "Alone-But-Happy",
+    {
+        expiresIn: "10s"
+    }
   );
   res.setHeader("x-api-key", token);
  return res.status(201).send({ status: true, token: token });
@@ -128,5 +128,51 @@ if(!(/^(?=.*[A-Z0-9])(?=.*[!@#$%^&*])[a-zA-Z0-9!@#$%^&*]{7,15}$/).test(password)
 }
 };
 
-module.exports.userRegister=userRegister
-module.exports.userlogin=userlogin
+const deleteReview = async function (req, res) {
+    try {
+
+        let bookId = req.params.bookId;
+        
+        if (!isValidObjectId(bookId))
+            return res.status(400).send({ status: false, message: "Please enter valid bookId...!" })
+
+        const bookExist = await bookModel.findOne({ _id: bookId, isDeleted: false }).select({ deletedAt: 0 })
+
+        if (!bookExist)
+            return res.status(404).send({ status: false, message: "No such book found...!" });
+
+        
+        let reviewId = req.params.reviewId;
+
+        if (!isValidObjectId(reviewId))
+            return res.status(400).send({ status: false, message: "enter valid reviewId...!" })
+
+        
+        const reviewExist = await reviewModel.findOne({ _id: reviewId, bookId: bookId })
+
+        if (!reviewExist) return res.status(404).send({ status: false, message: "review not found...!" })
+
+
+
+        if (reviewExist.isDeleted == true)
+            return res.status(404).send({ status: false, message: "review is already deleted...!" })
+        if (reviewExist.isDeleted == false) {   
+            await reviewModel.findOneAndUpdate(
+                { _id: reviewId, bookId: bookId, isDeleted: false },
+                { $set: { isDeleted: true } },
+                { new: true }
+            );
+
+            const addCount= await bookModel.findOneAndUpdate({_id:bookId},{$inc:{reviews:-1}},  {new:true})
+
+            return res.status(200).send({ status: true, message: 'successfully deleted review' });
+        }
+    }
+    catch (err) {
+        return res.status(500).send({ status: false, message: err.message })
+
+    }
+}
+module.exports.userRegister=userRegister;
+module.exports.userlogin=userlogin;
+module.exports.deleteReview=deleteReview;

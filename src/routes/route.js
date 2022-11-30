@@ -15,7 +15,8 @@ router.post("/register",User.userRegister)
  router.get("/books" ,Book.getAllBooks)
  router.put("/books/:bookId" ,Book.deleteBookBYId)
  router.post("/books/:bookId/review" ,Review.createreview)
- router.patch("/books/:bookId", Book.updateBook)
+ router.patch("/books/:bookId" ,Book.updateBook)
+ router.get("/books/:bookId" ,Book.getBookById)
 
 //login user 
 router.post("/login", User.userlogin)

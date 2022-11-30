@@ -36,5 +36,10 @@ function checkObject(value) {
         return true
     }
 }
-
-module.exports={isValid,regexName,regexPassword,regexPhone,regexPincode,regexemail,checkObject,isValidnum};
+const validateDate = (value) => { 
+    return (/^\d{4}-(0[1-9]|1[0-2])-(0[1-9]|[12][0-9]|3[01])$/).test(value) 
+}
+const ValidateISBN =(value)=>{
+    return (/^(97(8|9))?\d{9}(\d|X)$/).test(value);
+}
+module.exports={isValid,regexName,regexPassword,regexPhone,regexPincode,regexemail,checkObject,isValidnum,validateDate,ValidateISBN};
