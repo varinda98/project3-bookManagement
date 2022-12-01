@@ -112,6 +112,53 @@ const createreview=async (req,res)=>{
     } catch (err) {
       return res.status(500).send({status: false,message: err.message});}
   };
+
+  const deleteReview = async function (req, res) {
+    try {
+
+        let bookId = req.params.bookId;
+        
+        if (!isValidObjectId(bookId))
+            return res.status(400).send({ status: false, message: "Please enter valid bookId...!" })
+
+        const bookExist = await bookModel.findOne({ _id: bookId, isDeleted: false }).select({ deletedAt: 0 })
+
+        if (!bookExist)
+            return res.status(404).send({ status: false, message: "No such book found...!" });
+
+        
+        let reviewId = req.params.reviewId;
+
+        if (!isValidObjectId(reviewId))
+            return res.status(400).send({ status: false, message: "enter valid reviewId...!" })
+
+        
+        const reviewExist = await reviewModel.findOne({ _id: reviewId, bookId: bookId })
+
+        if (!reviewExist) return res.status(404).send({ status: false, message: "review not found...!" })
+
+
+
+        if (reviewExist.isDeleted == true)
+            return res.status(404).send({ status: false, data: "review is already deleted...!" })
+        if (reviewExist.isDeleted == false) {   
+            await reviewModel.findOneAndUpdate(
+                { _id: reviewId, bookId: bookId, isDeleted: false },
+                { $set: { isDeleted: true } },
+                { new: true }
+            );
+
+            const addCount= await bookModel.findOneAndUpdate({_id:bookId},{$inc:{reviews:-1}},  {new:true})
+
+            return res.status(200).send({ status: true, msg: 'successfully deleted review' });
+        }
+    }
+    catch (err) {
+        return res.status(500).send({ status: false, message: err.message })
+
+    }
+}
   
   module.exports.createreview=createreview;
   module.exports.updateReview=updateReview;
+  module.exports.deleteReview=deleteReview;
