@@ -134,7 +134,7 @@ const createreview=async (req,res)=>{
         const reviewExist = await reviewModel.findOne({ _id: reviewId, bookId: bookId })
 
         if (!reviewExist) return res.status(404).send({ status: false, message: "review not found...!" })
-        let countreview= await  reviewModel.find({bookId:bookId});
+        let countreview= await  reviewModel.find({bookId:bookId,isDeleted:false});
         let total=countreview.length-1
         let updateReview = await bookModel.updateOne({_id:bookId},{$set:{reviews:total}})
       
