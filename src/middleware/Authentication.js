@@ -13,7 +13,7 @@ const mid1= async (req,res,next)=>{
       
     req.abc=decodedToken;
     if (!decodedToken)
-      return res.send({ status: false, message: "token is invalid" });
+      return res.status(401).send({ status: false, message: "token is invalid" });
 
     next();
     }
@@ -22,6 +22,7 @@ const mid1= async (req,res,next)=>{
     }  
 }
 const mid2=async (req,res,next)=>{
+  try{
   let bookId = req.params.bookId;
   if(!isValidObjectId(bookId))
   return res.status(400).send({status:false,message:"Please enter correct bookId"})
@@ -30,6 +31,20 @@ const mid2=async (req,res,next)=>{
   next();
   else
   return res.status(403).send({status:false,msg:"not authorized"})
+  }
+  catch(err){
+    return res.status(500).send({status:false,message:err.message})
+  }
+}
+const mid3=async (req,res,next)=>{
+  let userId = req.body.userId;
+  if(!isValidObjectId(userId))
+  return res.status(400).send({status:false,message:"Please enter correct userId"})
+  if(req.abc.userId===userId)
+    next();
+  else
+  return res.status(403).send({status:false,msg:"not authorized"})
 }
 module.exports.mid1=mid1
 module.exports.mid2=mid2
+module.exports.mid3=mid3

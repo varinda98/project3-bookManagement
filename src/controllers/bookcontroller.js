@@ -192,16 +192,16 @@ const getAllBooks = async function (req, res) {
           return res.status(400).send({ status: false, message: "please provide a excerpt" })
       }
       //Check releasedAt
-  
+         if(releasedAt){
       if (!validator.validateDate(releasedAt)) {
         return res.status(400).send({ status: false, message: "please provide  date in proper format" })
-  
       }
+    }
   
         // check ISBN
   
         if (ISBN) {
-          if (!regex.test(ISBN)) return res.status(400).send({ status: false, msg: "please provide Valid ISBN" })
+          if (!validator.ValidateISBN(ISBN)) return res.status(400).send({ status: false, msg: "please provide Valid ISBN" })
   
           let checkISBN = await bookModel.findOne({ ISBN })
           if (checkISBN) return res.status(400).send({ status: false, message: "book with same ISBN is already present...!" })

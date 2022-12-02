@@ -12,9 +12,9 @@ const auth = require('../middleware/Authentication')
 router.post("/register",User.userRegister)
 
 // create the book
- router.post("/books" ,Book.createBook)
+ router.post("/books",auth.mid1, auth.mid3,Book.createBook)
  router.get("/books" ,Book.getAllBooks)
- router.put("/books/:bookId" ,auth.mid1, auth.mid2, Book.deleteBookBYId)
+ router.delete("/books/:bookId" ,auth.mid1, auth.mid2, Book.deleteBookBYId)
  router.patch("/books/:bookId" ,auth.mid1, auth.mid2, Book.updateBook)
  router.get("/books/:bookId" ,Book.getBookById)
 

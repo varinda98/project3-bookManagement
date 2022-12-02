@@ -114,7 +114,7 @@ if(!validator.regexPassword(password)){
     },
     "Alone-But-Happy",
     {
-        expiresIn: "20s"
+        expiresIn: "2h"
     }
   );
  
