@@ -17,7 +17,7 @@ const regexPhone = function (phone) {
 
 
 const regexPassword = function (password) {
-    return (/^(?=.*[A-Z0-9])(?=.*[!@#$%^&*])[a-zA-Z0-9!@#$%^&*]{7,15}$/)
+    return (/^(?=.*[A-Z0-9])(?=.*[!@#$%^&*])[a-zA-Z0-9!@#$%^&*]{8,15}$/)
         .test(password)
 }
 const regexPincode = function (pincode) {
@@ -40,6 +40,6 @@ const validateDate = (value) => {
     return (/^\d{4}-(0[1-9]|1[0-2])-(0[1-9]|[12][0-9]|3[01])$/).test(value) 
 }
 const ValidateISBN =(value)=>{
-    return (/^(97(8|9))?\d{9}(\d|X)$/).test(value);
+    return (/[0-9]{13}/).test(value);
 }
 module.exports={isValid,regexName,regexPassword,regexPhone,regexPincode,regexemail,checkObject,isValidnum,validateDate,ValidateISBN};

@@ -12,7 +12,6 @@ const mid1= async (req,res,next)=>{
         let decodedToken = jwt.verify(token, "Alone-But-Happy");
       
     req.abc=decodedToken;
-
     if (!decodedToken)
       return res.send({ status: false, message: "token is invalid" });
 

@@ -17,7 +17,7 @@ try {
         }
         //check name
         if (!validator.isValid(name)) {
-            return res.status(400).send({ status: false, msg: "please provide name in proper format" })
+            return res.status(400).send({ status: false, message: "please provide name in proper format" })
         }
         if (!validator.regexName(name)) {
             return res.status(400).send({ status: false, msg: "please provide name in character only" })
@@ -49,7 +49,7 @@ try {
             return res.status(400).send({ status: false, msg: "please provide password in proper format" })
         }
         if (!validator.regexPassword(password)) {
-            return res.status(400).send({ status: false, msg: "please provide valid password" })
+            return res.status(400).send({ status: false, msg: "Please provide password length 8 to 15 using symbol" })
         }
         //valid address
         if (address) {
@@ -73,13 +73,9 @@ try {
             }
         }
         
-        
-
+    
         let userData = await userModel.create(data)
         return res.status(201).send({ status: true, msg: "User created successfully", data: userData })
-
-    
-
 
     }
     catch (error) {
@@ -118,9 +114,10 @@ if(!validator.regexPassword(password)){
     },
     "Alone-But-Happy",
     {
-        expiresIn: "10s"
+        expiresIn: "20s"
     }
   );
+ 
   res.setHeader("x-api-key", token);
  return res.status(201).send({ status: true, token: token });
 } catch(err){
@@ -128,51 +125,6 @@ if(!validator.regexPassword(password)){
 }
 };
 
-const deleteReview = async function (req, res) {
-    try {
 
-        let bookId = req.params.bookId;
-        
-        if (!isValidObjectId(bookId))
-            return res.status(400).send({ status: false, message: "Please enter valid bookId...!" })
-
-        const bookExist = await bookModel.findOne({ _id: bookId, isDeleted: false }).select({ deletedAt: 0 })
-
-        if (!bookExist)
-            return res.status(404).send({ status: false, message: "No such book found...!" });
-
-        
-        let reviewId = req.params.reviewId;
-
-        if (!isValidObjectId(reviewId))
-            return res.status(400).send({ status: false, message: "enter valid reviewId...!" })
-
-        
-        const reviewExist = await reviewModel.findOne({ _id: reviewId, bookId: bookId })
-
-        if (!reviewExist) return res.status(404).send({ status: false, message: "review not found...!" })
-
-
-
-        if (reviewExist.isDeleted == true)
-            return res.status(404).send({ status: false, message: "review is already deleted...!" })
-        if (reviewExist.isDeleted == false) {   
-            await reviewModel.findOneAndUpdate(
-                { _id: reviewId, bookId: bookId, isDeleted: false },
-                { $set: { isDeleted: true } },
-                { new: true }
-            );
-
-            const addCount= await bookModel.findOneAndUpdate({_id:bookId},{$inc:{reviews:-1}},  {new:true})
-
-            return res.status(200).send({ status: true, message: 'successfully deleted review' });
-        }
-    }
-    catch (err) {
-        return res.status(500).send({ status: false, message: err.message })
-
-    }
-}
 module.exports.userRegister=userRegister;
 module.exports.userlogin=userlogin;
-module.exports.deleteReview=deleteReview;
