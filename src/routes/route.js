@@ -20,8 +20,8 @@ router.post("/register",User.userRegister)
 
 // Review
  router.post("/books/:bookId/review" ,Review.createreview)
- router.post("/books/:bookId/review/:reviewId" ,Review.updateReview)
- router.post("/books/:bookId/review/:reviewId" ,Review.deleteReview)
+ router.put("/books/:bookId/review/:reviewId" ,Review.updateReview)
+ router.delete("/books/:bookId/review/:reviewId" ,Review.deleteReview)
  
 //login user 
 router.post("/login", User.userlogin)

@@ -27,6 +27,9 @@ const mid2=async (req,res,next)=>{
   if(!isValidObjectId(bookId))
   return res.status(400).send({status:false,message:"Please enter correct bookId"})
   let data= await bookModel.findById(bookId)
+  if(!data){
+    return res.status(404).send({status:false,message:"book is not exits"})
+  }
   if(req.abc.userId==data.userId)
   next();
   else

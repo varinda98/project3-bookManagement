@@ -2,7 +2,7 @@ const bookModel= require ("../Models/bookModel")
 const reviewModel = require("../Models/reviewModel")
 const { isValidObjectId } = require('mongoose');
 const moment = require('moment');
-
+const validator= require("../regex");
 
 const createreview=async (req,res)=>{
    
@@ -19,27 +19,30 @@ const createreview=async (req,res)=>{
   if (!isValidObjectId(bookId)) {
     return res.status(400).send({ status: false, message: "Invalid BookId" });
   }
-     let bookcheck= await bookModel.findOne({_id:bookId});
+     let bookcheck= await bookModel.findOne({_id:bookId,isDeleted:false});
      if(!bookcheck){
-      return res.status(404).send({status:false,message:"book is not find"})
+      return res.status(404).send({status:false,message:"book is not exits"})
      }
     
     let {reviewedBy,rating,review} = data
   
-  if (!reviewedBy) {
-    return res.status(400).send({ status: false, message:"Please provide reviewedBy" })
+  // if (!reviewedBy) {
+  //   return res.status(400).send({ status: false, message:"Please provide reviewedBy" })
+  // }
+  if (!rating && 0>rating<=5) {
+    return res.status(400).send({ status: false, message:"Please provide rating between 1 to 5"})
   }
-  
-  if (!rating) {
-    return res.status(400).send({ status: false, message:"Please provide rating" })
-  }
-  if (!review) {
+   if (!review) {
     return res.status(400).send({ status: false, message:"Please provide review" })
   } 
+  let countreview= await  reviewModel.find({bookId:bookId});
   data.reviewedAt=moment().format("YYYY-MM-DD");
   data.bookId=bookId;
-  let finalreview = await  reviewModel.create(data)  
-   return res.status(201).send({status:true,message:finalreview})
+  let finalreview = await  reviewModel.create(data)
+  let total=countreview.length+1
+  let updateReview = await bookModel.updateOne({_id:bookId},{$set:{reviews:total}})
+
+   return res.status(201).send({status:true,data:finalreview})
   }
     catch(err){
       res.status(500).send({status:false,message:err.message})
@@ -56,12 +59,12 @@ const createreview=async (req,res)=>{
       if (!isValidObjectId(book)) {
         return res.status(400).send({status: false,message: "Book Id is not valid"});}
            
-      const existBook = await bookModel.findOne({ _id: book, isDeleted: false }).lean();
+      const existBook = await bookModel.findOne({ _id:book,isDeleted:false }).lean();
       if (!existBook) {
-        return res.status(404).send({status: false,message: "No data found"});}
+        return res.status(404).send({status:false,message: "No data found"});}
   
       const paramreview = req.params.reviewId;
-      if (!isValidObject(paramreview)) {
+      if (!isValidObjectId(paramreview)) {
        return  res.status(400).send({status: false,message: "review Id is not valid"});}
   
       const existReview = await reviewModel.findOne({_id: paramreview,bookId:existBook._id,isDeleted: false});
@@ -70,16 +73,16 @@ const createreview=async (req,res)=>{
       return res.status(404).send({status: false,message: "No data found"});}
   
       const requestBody = req.body;
-      if (!isValidBody(requestBody)) {
+      if (!requestBody) {
       return res.status(400).send({status: false,message: "required some mandatory data"});}
   
       const { review, rating, reviewedBy } = requestBody;
       
-      if (reviewedBy !== undefined) {
-        if (!isValidType(reviewedBy)) {
+      if (reviewedBy !== "undefined") {
+        if (!validator.isValid(reviewedBy)) {
           return res.status(400).send({status: false,message: "type must be string and required some data inside string"});}
   
-        if(!/^([a-zA-Z. , ]){1,100}$/.test(reviewedBy)){
+        if(!/^([A-Za-z ]){1,100}$/.test(reviewedBy)){
           return res.status(400).send({status: false,message: "reviewedBy should be in alphabets"})}
   
         filteredData["reviewedBy"] = reviewedBy.trim().split(' ').filter(a=>a).join(' ');
@@ -95,10 +98,9 @@ const createreview=async (req,res)=>{
         filteredData["rating"] = rating;
       }
   
-      if (review !== undefined) {
-        if (!isValidType(review)) {
+      if (review) {
+        if (!validator.isValid(review)) {
         return res.status(400).send({status: false,message: "type must be string and required some data inside string"});}
-  
         filteredData["review"] = review.trim().split(' ').filter(a=>a).join(' ');
       }
   
@@ -136,8 +138,10 @@ const createreview=async (req,res)=>{
         const reviewExist = await reviewModel.findOne({ _id: reviewId, bookId: bookId })
 
         if (!reviewExist) return res.status(404).send({ status: false, message: "review not found...!" })
-
-
+        let countreview= await  reviewModel.find({bookId:bookId});
+        let total=countreview.length-1
+        let updateReview = await bookModel.updateOne({_id:bookId},{$set:{reviews:total}})
+      
 
         if (reviewExist.isDeleted == true)
             return res.status(404).send({ status: false, data: "review is already deleted...!" })
