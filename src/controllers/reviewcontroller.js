@@ -78,14 +78,13 @@ const createreview=async (req,res)=>{
   
       const { review, rating, reviewedBy } = requestBody;
       
-      if (reviewedBy !== "undefined") {
+      if (reviewedBy) {
         if (!validator.isValid(reviewedBy)) {
-          return res.status(400).send({status: false,message: "type must be string and required some data inside string"});}
+          return res.status(400).send({status: false,message: "typesss must be string and required some data inside string"});}
   
         if(!/^([A-Za-z ]){1,100}$/.test(reviewedBy)){
           return res.status(400).send({status: false,message: "reviewedBy should be in alphabets"})}
   
-        filteredData["reviewedBy"] = reviewedBy.trim().split(' ').filter(a=>a).join(' ');
       }
   
       if (rating !== undefined) {
@@ -94,17 +93,14 @@ const createreview=async (req,res)=>{
   
         if (rating < 1 || rating > 5) {
         return res.status(400).send({status: false,message: "rating should be between 1 to 5"});}
-        
-        filteredData["rating"] = rating;
       }
   
       if (review) {
         if (!validator.isValid(review)) {
-        return res.status(400).send({status: false,message: "type must be string and required some data inside string"});}
-        filteredData["review"] = review.trim().split(' ').filter(a=>a).join(' ');
+        return res.status(400).send({status:false,message:"type must be string and required some data inside string"});}
       }
   
-      const updateReview = await reviewModel.findByIdAndUpdate({ _id: paramreview },{ $set: filteredData },{ new: true }).select({_id:1, bookId:1, reviewedBy:1, reviewedAt:1, rating:1, review:1});
+      const updateReview = await reviewModel.findByIdAndUpdate({ _id: paramreview },{ $set: requestBody },{ new: true }).select({_id:1, bookId:1, reviewedBy:1, reviewedAt:1, rating:1, review:1});
      
       if (updateReview) {
         existBook.reviewsData=updateReview
