@@ -13,10 +13,10 @@ router.post("/register",User.userRegister)
 
 // create the book
  router.post("/books",auth.mid1, auth.mid3,Book.createBook)
- router.get("/books" ,Book.getAllBooks)
+ router.get("/books" ,auth.mid1, Book.getAllBooks)
  router.delete("/books/:bookId" ,auth.mid1, auth.mid2, Book.deleteBookBYId)
- router.patch("/books/:bookId" ,auth.mid1, auth.mid2, Book.updateBook)
- router.get("/books/:bookId" ,Book.getBookById)
+ router.put("/books/:bookId" ,auth.mid1, auth.mid2, Book.updateBook)
+ router.get("/books/:bookId",Book.getBookById)
 
 // Review
  router.post("/books/:bookId/review" ,Review.createreview)

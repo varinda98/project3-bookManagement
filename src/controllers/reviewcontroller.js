@@ -29,13 +29,13 @@ const createreview=async (req,res)=>{
   // if (!reviewedBy) {
   //   return res.status(400).send({ status: false, message:"Please provide reviewedBy" })
   // }
-  if (!rating && 0>rating<=5) {
+  if (!rating ||(rating < 1 || rating > 5)) {
     return res.status(400).send({ status: false, message:"Please provide rating between 1 to 5"})
   }
    if (!review) {
     return res.status(400).send({ status: false, message:"Please provide review" })
   } 
-  let countreview= await  reviewModel.find({bookId:bookId});
+  let countreview= await  reviewModel.find({bookId:bookId,isDeleted:false});
   data.reviewedAt=moment().format("YYYY-MM-DD");
   data.bookId=bookId;
   let finalreview = await  reviewModel.create(data)
@@ -134,8 +134,9 @@ const createreview=async (req,res)=>{
         const reviewExist = await reviewModel.findOne({ _id: reviewId, bookId: bookId })
 
         if (!reviewExist) return res.status(404).send({ status: false, message: "review not found...!" })
-        let countreview= await  reviewModel.find({bookId:bookId,isDeleted:false});
-        let total=countreview.length-1
+        let countreview= await  reviewModel.find({bookId:bookId,isDeleted:false}).count();
+        let total=countreview
+        
         let updateReview = await bookModel.updateOne({_id:bookId},{$set:{reviews:total}})
       
 

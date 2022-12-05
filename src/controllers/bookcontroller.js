@@ -8,15 +8,17 @@ const reviewModel = require("../Models/reviewModel");
 const createBook = async function (req, res) {
     try {
         let { title, excerpt, userId, ISBN, category, subcategory,releasedAt} = req.body
+        if (!title) {
+          return res.status(400).send({ status: false, message:"title is require" })
+      }
+        title= req.body.title.trim();
         if(!req.body){
             return res.status(400).send({status:false,message:"body is blank"})
         }
         let checktitle = await bookModel.findOne({title:title})
         // this is tittle validation
-         title=req.body.title.trim();
-        if (!title) {
-            return res.status(400).send({ status: false, message:"title is require" })
-        }
+         
+        
         if(checktitle){
           return res.status(400).send({ status: false, message:"Please provide unqiue title" })
         }
@@ -28,7 +30,7 @@ const createBook = async function (req, res) {
         if(!isValidObjectId(userId)){
           return res.status(400).send({ status: false, message:"userId is not vaild" })
         }
-          let data1 = await userModel.findById({_id:userId})
+          let data1 = await userModel.findById({_id:userId,isDeleted:false})
           
           if(!data1){
             return res.status(404).send({ status: false, message:"userId is not register" })
@@ -45,7 +47,7 @@ const createBook = async function (req, res) {
       if(!validator.ValidateISBN(ISBN)){
         return res.status(400).send({ status: false, message:"Please provide valid ISBN"}) 
       }
-        let testbook = await bookModel.findOne({ISBN:ISBN});
+        let testbook = await bookModel.findOne({ISBN:ISBN,isDeleted:false});
         if(testbook)
         {
           return res.status(400).send({ status: false, message:"Already registered ISBN" })
@@ -91,23 +93,23 @@ const getAllBooks = async function (req, res) {
       //check userId
         
         //check the userId is valid
-          if (!userId){
-            return res.status(400).send({ status: false, message: "UserId should  be present" })
-            }
-          if (!isValidObjectId(userId)) {
+          if (userId){  
+          if (!isValidObjectId(userId)) 
             return res.status(400).send({ status: false, message: "UserId is not valid" })
           }
         
     
         //check the category value is present
       
-      if (!category) {
+      if (category) {
+         if(!validator.isValid(category))
           return res.status(400).send({ status: false, message: "category should  be present" })
           }
   
         //check the subcategory value is present
      
-      if (!subcategory) {
+      if (subcategory) {
+        if(!validator.isValid(subcategory))
           return res.status(400).send({ status: false, message: "subcategory should  be present" })
           
       }
@@ -118,12 +120,16 @@ const getAllBooks = async function (req, res) {
       };
      
       // get these field from bookModel book _id, title, excerpt, userId, category, releasedAt, reviews 
-        const Getbooks= await bookModel.find(filter).select({_id:1,title:1, excerpt:1, userId:1, category:1, releasedAt:1, reviews:1})
+      const Getbooks= await bookModel.find(filter).select({_id:1,title:1, excerpt:1, userId:1, category:1, releasedAt:1, reviews:1})
         Getbooks.sort((a,b) => a.title.localeCompare(b.title))
-
-      if (Getbooks.length == 0)
+        
+      if(Object.keys(field).length===0)  {
+      const Getbooks= await bookModel.find(filter).select({_id:1,title:1, excerpt:1, userId:1, category:1, releasedAt:1, reviews:1})
+        Getbooks.sort((a,b) => a.title.localeCompare(b.title))
+      }
+      if (Getbooks.length == 0){
         return res.status(404).send({ status: false, message: "No Book is found" });
-         
+      }
         return res.status(200).send({ status: true, message: 'Books list', data:Getbooks})
 
   
@@ -149,7 +155,7 @@ const getAllBooks = async function (req, res) {
         return res.status(404).send({ status: false, message: 'book not found or already deleted' })
       }
   
-      let updateBook = await bookModel.findOneAndUpdate({ _id: bookId }, { isDeleted: true, deletedAt:moment().format("YYYY-MM-DD") }, { new: true })
+      let updateBook = await bookModel.findOneAndUpdate({ _id:bookId }, { isDeleted: true, deletedAt:moment().format("YYYY-MM-DD") }, { new: true })
   
       res.status(200).send({ status: true, message: 'sucessfully deleted' })
   
