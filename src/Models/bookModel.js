@@ -16,7 +16,7 @@ const bookSchema = new mongoose.Schema({
     userId : {
         type : ObjectId,
         required : true,
-        ref : ""
+        ref : "P3-user"
     },
     ISBN : {
         type :String,
@@ -32,6 +32,10 @@ const bookSchema = new mongoose.Schema({
         type : String,
         required : true,
         trim:true
+    },
+    bookCover:{
+        type:String,
+        default:""       
     },
     reviews: {
         type : Number,

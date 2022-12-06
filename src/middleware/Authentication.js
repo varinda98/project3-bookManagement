@@ -9,7 +9,7 @@ const mid1= async (req,res,next)=>{
     return res.send({ status: false, message:"token must be present" });
     
      try{
-        let decodedToken = jwt.verify(token, "Alone-But-Happy");
+        var decodedToken = jwt.verify(token, "Alone-But-Happy");
      }
      catch(err){
       return res.status(401).send({ status: false, message: "token is invalid" });
