@@ -294,6 +294,16 @@ if (!isValidObjectId(bookId)) {
   const urlimage=async function(req, res){
     try{
       let bookId=req.params.bookId;
+      if (!bookId) {
+        return res.status(400).send({ status: false, message:"Please provide bookid" })
+          }
+    if (!isValidObjectId(bookId)) {
+      return res.status(400).send({ status: false, message: "Invalid BookId" });
+    }
+        let bookDetails = await bookModel.findOne({_id:bookId,isDeleted:false}).lean();
+           if (!bookDetails){
+           res.status(404).send({ status: false, msg: "No such book exists" });
+           }
         let files= req.files;
         if(files && files.length>0){
             //upload to s3 and get the uploaded link
